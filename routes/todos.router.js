@@ -1,14 +1,13 @@
 const express = require('express')
 const router = express.Router()
 
+const todosController = require('../controllers/todo.controller')
+
 // View todos
-router.get('/', (req, res) => {
-	res.send('Todos will be here')
-})
+router.get('/', todosController.viewAll)
 
 router.post('/create', (req, res) => {
-	const body = req.body
-	res.send(body)
+	res.json(req.body)
 })
 
 module.exports = router

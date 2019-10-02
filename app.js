@@ -1,15 +1,21 @@
 require('dotenv').config()
 
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose')
 const express = require('express')
 const app = express()
 
+//Middleware
+app.use(bodyParser.json());
+app.use(bodyParser.urlencoded({extended: false}));
+
 //Routes
-const todoRoutes = require('./routes/todo.router')
+const todoRoutes = require('./routes/todos.router')
 app.use('/todos', todoRoutes)
 
+
 function start(){
-  port = process.env.PORT
+  port = process.env.PORT || 3000
   mongoURI = process.env.MONGOURI
 
   app.listen(port, () => {
