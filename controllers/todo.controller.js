@@ -52,6 +52,23 @@ exports.deleteOne = (req, res) => {
     })
 }
 
-exports.deleteAll = (req, res) => {
-  res.send(`Delete ${req.params.id}`)
+exports.deleteCompleted = (req, res) => {
+  const {ids} = req.params
+  const idsArr = ids.split(',')
+  Todos.deleteMany({
+    _id: {
+      $in: idsArr
+    }
+  }, (err, response) => {
+    if(err){
+      res.status(500).json({
+        message: err.message
+      })
+    }else {
+      res.json({
+        result: response
+      })
+    }
+
+  })
 }
