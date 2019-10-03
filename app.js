@@ -19,7 +19,7 @@ function start(){
   mongoURI = process.env.MONGOURI
 
   app.listen(port, () => {
-    mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true })
+    mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: true })
     mongoose.connection.on('connected', () => console.log('MongoDB connected'))
     console.log(`Server is running on port ${port}`)
   })
