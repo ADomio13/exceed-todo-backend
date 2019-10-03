@@ -1,14 +1,14 @@
 require('dotenv').config()
 
-const bodyParser = require('body-parser');
+//const bodyParser = require('body-parser');
 const mongoose = require('mongoose')
 const express = require('express')
 const morgan = require('morgan')
 const app = express()
 
 //Middleware
-app.use(bodyParser.json())
-app.use(bodyParser.urlencoded({extended: false}))
+app.use(express.json())
+app.use(express.urlencoded({extended: false}))
 app.use(morgan('dev'))
 
 //Routes
@@ -23,7 +23,10 @@ function start(){
   mongoURI = process.env.MONGOURI
 
   app.listen(port, () => {
-    mongoose.connect(mongoURI, { useNewUrlParser: true, useUnifiedTopology: true, useFindAndModify: true })
+    mongoose.connect(mongoURI, {
+      useNewUrlParser: true,
+      useUnifiedTopology: true,
+    })
     mongoose.connection.on('connected', () => console.log('MongoDB connected'))
     console.log(`Server is running on port ${port}`)
   })
