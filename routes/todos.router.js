@@ -7,6 +7,6 @@ const todosController = require('../controllers/todo.controller')
 router.get('/', todosController.viewAll)
 router.post('/add', todosController.add)
 router.delete('/delete/:id', todosController.deleteOne)
-router.delete('/delete/few/:ids', todosController.deleteCompleted)
+router.delete('/delete/few/:ids', todosController.deleteFew)
 
 module.exports = router

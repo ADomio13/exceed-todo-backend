@@ -52,7 +52,7 @@ exports.deleteOne = (req, res) => {
     })
 }
 
-exports.deleteCompleted = (req, res) => {
+exports.deleteFew = (req, res) => {
   const {ids} = req.params
   const idsArr = ids.split(',')
   Todos.deleteMany({
