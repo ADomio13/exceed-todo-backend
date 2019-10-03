@@ -8,13 +8,13 @@ exports.register = (req, res) => {
 
   //Validation
   if(!email || !password){
-    return res.status(400).send({message: 'Enter required email and password'})
+    return res.status(400).json({ message: 'Enter required email and password' })
   }
 
   //Checking for existing user
   Users.findOne({  email })
     .then(user => {
-      if(user) return res.status(400).send({message: 'User already exists'})
+      if(user) return res.status(400).json({ message: 'User already exists' })
       const newUser = new Users({
         firstName,
         lastName,
@@ -53,17 +53,15 @@ exports.register = (req, res) => {
 }
 
 exports.login = (req, res) => {
-  const { firstName, lastName, email, password } = req.body
+  const { email, password } = req.body
   Users.findOne({ email })
     .then(user => {
-      if(!user) return res.status(400).json({ message: 'Wrong email or password'})
+      if(!user) return res.status(400).json({ message: 'Wrong email or password' })
 
       // Validate password
       bcrypt.compare(password, user.password)
         .then(isMatch => {
-          if (!isMatch) return res.status(400).json({
-            message: 'Wrong email or password'
-          })
+          if (!isMatch) return res.status(400).json({ message: 'Wrong email or password' })
 
           jwt.sign(
             { email: user.email },
