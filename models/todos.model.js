@@ -12,7 +12,11 @@ const TodoSchema = new Schema({
     },
     createdAt: {
         type: Date,
-        required: true
+        default: Date.now()
+    },
+    userId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Users'
     }
 })
 

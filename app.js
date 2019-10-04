@@ -1,15 +1,17 @@
 require('dotenv').config()
 
-//const bodyParser = require('body-parser');
+const bodyParser = require('body-parser');
 const mongoose = require('mongoose')
 const express = require('express')
 const morgan = require('morgan')
+const cors = require('cors')
 const app = express()
 
 //Middleware
-app.use(express.json())
-app.use(express.urlencoded({extended: false}))
+app.use(bodyParser.json())
+app.use(bodyParser.urlencoded({extended: true}))
 app.use(morgan('dev'))
+app.use(cors())
 
 //Routes
 const todoRoutes = require('./routes/todos.router')

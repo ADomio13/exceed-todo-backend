@@ -3,52 +3,54 @@ const Todos = require('../models/todos.model')
 exports.viewAll = (req, res) => {
   Todos.find()
     .then(todos => {
-      res.send(todos)
+      res.status(200).json(todos)
     })
     .catch(err => {
-      res.status(500).send({
-        message: err || 'Something went wrong'
-      })
+      res.status(500).json({ message: err || 'Something went wrong' })
     })
 }
 
 exports.add = (req, res) => {
   //Validate request
   if(!req.body){
-    res.status(400).end('Empty request')
+    res.status(400).json({ message: 'Empty request' })
   }
   const todo = new Todos({
     name: req.body.name,
     isActive: true,
-    createdAt: Date.now()
   })
   todo.save()
     .then(data => {
-      res.status(201).send(data)
+      return res.status(201).json(data)
     })
     .catch(err => {
-      res.status(500).send({
-        message: err || 'Something went wrong :('
-      })
+      return  res.status(500).json({ message: err || 'Something went wrong :(' })
   })
+}
+
+exports.edit = (req, res) => {
+  Todos.findByIdAndUpdate(req.params.id, req.body)
+    .then( todo => {
+      if (!todo) {
+        return res.status(404).json({message: `Todo with ID ${req.params.id} not found, try another ID`})
+      }
+      return res.status(200).json({message: `Todo with ID ${req.params.id} edited successfully!`, body: req.body})
+    })
+    .catch(err => {
+      res.status(500).json({ message: err || 'Something went wrong :(' })
+    })
 }
 
 exports.deleteOne = (req, res) => {
   Todos.findByIdAndRemove(req.params.id)
     .then(todo => {
       if(!todo) {
-        res.status(404).send({
-          message: `Todo with ID ${req.params.id} not found, try another ID`
-        })
+        return res.status(404).json({ message: `Todo with ID ${req.params.id} not found, try another ID` })
       }
-      res.status(200).send({
-        message: `Todo with ID ${req.params.id} deleted successfully!`
-      })
+      return res.status(200).json({ message: `Todo with ID ${req.params.id} deleted successfully!` })
     })
     .catch(err => {
-      res.status(500).send({
-        message: err
-      })
+      res.status(500).json({ message: err || 'Something went wrong :(' })
     })
 }
 
@@ -59,16 +61,12 @@ exports.deleteFew = (req, res) => {
     _id: {
       $in: idsArr
     }
-  }, (err, response) => {
+  },
+    (err, response) => {
     if(err){
-      res.status(500).json({
-        message: err.message
-      })
+      res.status(500).json({ message: err.message || 'Something went wrong :(' })
     }else {
-      res.json({
-        result: response
-      })
+      res.status(200).json({ result: response })
     }
-
   })
 }
