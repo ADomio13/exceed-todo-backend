@@ -16,6 +16,7 @@ exports.add = (req, res) => {
     res.status(400).json({ message: 'Empty request' })
   }
   const todo = new Todos({
+    createdBy: req.body.createdBy,
     name: req.body.name,
     isActive: true,
   })

@@ -3,85 +3,47 @@ const bcrypt = require('bcryptjs')
 const jwt = require('jsonwebtoken')
 const jwtSecret = process.env.JWTSECRET
 
-exports.register = (req, res) => {
+exports.register = async (req, res) => {
   const { firstName, lastName, email, password } = req.body
-
-  //Validation
-  if(!email || !password){
-    return res.status(400).json({ message: 'Enter required email and password' })
+  //Validate
+  const candidate = await Users.findOne({email})
+  if(candidate){
+    return res.status(400).json({message: 'user already exist'})
   }
-
-  //Checking for existing user
-  Users.findOne({  email })
-    .then(user => {
-      if(user) return res.status(400).json({ message: 'User already exists' })
-      const newUser = new Users({
-        firstName,
-        lastName,
-        email,
-        password,
-      })
-      //Create salt
-      bcrypt.genSalt(10, (err, salt) => {
-        bcrypt.hash(newUser.password, salt, (err, hash) => {
-          if (err) throw err
-          newUser.password = hash
-          newUser.save()
-            .then(user => {
-
-              jwt.sign(
-                { email: user.email },
-                jwtSecret,
-                { expiresIn: 3600 },
-                (err, token) => {
-                  if (err) throw err
-                  res.json({
-                    token,
-                    user: {
-                      id: user.id,
-                      firstName: user.firstName,
-                      lastName: user.lastName,
-                      email: user.email
-                    }
-                  })
-                }
-              )
-            })
-        })
-      })
-    })
+  //Create a user
+  const salt = bcrypt.genSaltSync(10)
+  const user = new Users({
+    firstName,
+    lastName,
+    email,
+    password: bcrypt.hashSync(password, salt)
+  })
+  return await user.save()
+    .then((user) => res.status(201).json({message: 'Created', user}))
+    .catch(err => res.status(500).json({message: err}))
 }
 
-exports.login = (req, res) => {
+exports.login = async (req, res) => {
   const { email, password } = req.body
-  Users.findOne({ email })
-    .then(user => {
-      if(!user) return res.status(400).json({ message: 'Wrong email or password' })
+  //Validate
+  const candidate = await Users.findOne({email})
+  if(!candidate){
+    return res.status(404).json({message: 'User doesn\'t exist'})
+  }
 
-      // Validate password
-      bcrypt.compare(password, user.password)
-        .then(isMatch => {
-          if (!isMatch) return res.status(400).json({ message: 'Wrong email or password' })
-
-          jwt.sign(
-            { email: user.email },
-            jwtSecret,
-            { expiresIn: 3600 },
-            (err, token) => {
-              if (err) throw err
-              res.json({
-                token,
-                user: {
-                  id: user.id,
-                  firstName: user.firstName,
-                  lastName: user.lastName,
-                  email: user.email
-                }
-              })
-            }
-          )
-        })
-    })
+  const comparePasswords = bcrypt.compareSync(password, candidate.password)
+  if(comparePasswords) {
+    const {email, firstName, lastName, _id} = candidate
+    const token = jwt.sign({
+      email,
+      firstName,
+      lastName,
+      id: _id
+    }, jwtSecret, {expiresIn: 3600})
+    res.json({token: `Bearer ${token}`})
+  } else {
+    res.status(400).json({message: 'Password is incorrect'})
+  }
 
 }
 
